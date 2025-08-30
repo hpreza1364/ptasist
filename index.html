@@ -19,8 +19,8 @@
     <meta name="theme-color" content="#6366f1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="پرامت نگار">
-    <link rel="apple-touch-icon" href="https://cmagnet.ir/uploads/49853a38c3234658b4d4f907640a222a.w_250,h_250,r_k.png">
+    <meta name="apple-mobile-web-app-title" content="دستیار پرامت نویسی">
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/logo/Favicon.png">
     
     <!-- Manifest برای PWA -->
     <link rel="manifest" href="manifest.json">
@@ -187,6 +187,7 @@
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             margin-top: 20px;
+            position: relative;
         }
 
         .output-title {
@@ -210,6 +211,13 @@
             line-height: 1.8;
             /* فقط کشیدگی عمودی فعال شود */
             resize: vertical;
+        }
+
+        .output-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
         }
 
         .toast {
@@ -283,8 +291,35 @@
             font-weight: 500;
         }
 
+        /* استایل برای راهنمای نصب PWA */
+        .pwa-guide {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            margin-top: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .pwa-guide h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .guide-android, .guide-ios {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .guide-android h4, .guide-ios h4 {
+            color: #6366f1;
+            margin-bottom: 10px;
+        }
+
         @media (max-width: 768px) {
-            .actions {
+            .actions, .output-actions {
                 flex-direction: column;
             }
             
@@ -322,7 +357,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>پرامت نگار</h1>
+            <h1>دستیار پرامت نویسی</h1>
             <p class="subtitle">پرامپت‌های حرفه‌ای برای هوش مصنوعی ایجاد کنید</p>
         </header>
 
@@ -392,12 +427,12 @@
                 </div>
 
                 <div class="actions">
-                    <button type="button" class="btn-copy" id="copyBtn">
-                        <span>کپی پرامپت</span>
-                        <span>📋</span>
+                    <button type="button" class="btn-copy" id="generateBtn">
+                        <span>تولید پرامپت</span>
+                        <span>✨</span>
                     </button>
                     <button type="reset" class="btn-reset">
-                        <span>پاک کردن</span>
+                        <span>پاک کردن فرم</span>
                         <span>🗑️</span>
                     </button>
                 </div>
@@ -409,6 +444,34 @@
                 <h2>پرامپت تولید شده</h2>
             </div>
             <div id="promptOutput">پرامپت شما اینجا نمایش داده خواهد شد...</div>
+            
+            <div class="output-actions">
+                <button type="button" class="btn-copy" id="copyBtn">
+                    <span>کپی پرامپت</span>
+                    <span>📋</span>
+                </button>
+                <button type="button" class="btn-reset" id="clearOutputBtn">
+                    <span>پاک کردن متن</span>
+                    <span>🗑️</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- راهنمای نصب PWA -->
+        <div class="pwa-guide">
+            <h3>نصب اپلیکیشن روی صفحه اصلی</h3>
+            <div class="guide-android">
+                <h4>برای اندروید (مرورگر کروم):</h4>
+                <p>1. منوی مرورگر (سه نقطه) را باز کنید</p>
+                <p>2. گزینه "Add to Home screen" را انتخاب کنید</p>
+                <p>3. روی "Add" بزنید</p>
+            </div>
+            <div class="guide-ios">
+                <h4>برای iOS (مرورگر سافاری):</h4>
+                <p>1. دکمه Share (مربع با فلش) را بزنید</p>
+                <p>2. گزینه "Add to Home Screen" را انتخاب کنید</p>
+                <p>3. روی "Add" بزنید</p>
+            </div>
         </div>
 
         <div class="ai-section">
@@ -456,7 +519,9 @@
     <script>
         // انتخاب عناصر مهم
         const promptForm = document.getElementById('promptForm');
+        const generateBtn = document.getElementById('generateBtn');
         const copyBtn = document.getElementById('copyBtn');
+        const clearOutputBtn = document.getElementById('clearOutputBtn');
         const promptOutput = document.getElementById('promptOutput');
         const toast = document.getElementById('toast');
         const installBtn = document.getElementById('installBtn');
@@ -483,38 +548,78 @@
             return prompt;
         }
         
+        // تابع برای کپی متن با روشی سازگار با همه دستگاه‌ها
+        function copyToClipboard(text) {
+            // ایجاد یک عنصر موقت برای کپی کردن
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.opacity = 0;
+            
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                if (successful) {
+                    return true;
+                } else {
+                    // روش جایگزین برای دستگاه‌های مدرن
+                    return navigator.clipboard.writeText(text)
+                        .then(() => true)
+                        .catch(() => false);
+                }
+            } catch (err) {
+                document.body.removeChild(textArea);
+                return navigator.clipboard.writeText(text)
+                    .then(() => true)
+                    .catch(() => false);
+            }
+        }
+        
         // به‌روزرسانی خروجی هنگام تغییر فرم
         promptForm.addEventListener('input', () => {
             promptOutput.textContent = generatePrompt();
         });
         
+        // دکمه تولید پرامپت
+        generateBtn.addEventListener('click', () => {
+            promptOutput.textContent = generatePrompt();
+        });
+        
         // کپی کردن پرامپت
         copyBtn.addEventListener('click', () => {
-            const promptText = generatePrompt();
+            const promptText = promptOutput.textContent;
             
-            // بررسی پر بودن فیلدهای اجباری
-            const role = document.getElementById('role').value;
-            const goal = document.getElementById('goal').value;
-            const audience = document.getElementById('audience').value;
-            const description = document.getElementById('description').value;
-            
-            if (!role || !goal || !audience || !description) {
-                alert('لطفا فیلدهای اجباری (نقش، هدف، مخاطب و شرح) را پر کنید.');
+            if (!promptText || promptText === 'پرامپت شما اینجا نمایش داده خواهد شد...') {
+                alert('لطفا ابتدا پرامپت را تولید کنید.');
                 return;
             }
             
             // کپی کردن به کلیپ‌بورد
-            navigator.clipboard.writeText(promptText).then(() => {
-                // نمایش اعلان
-                toast.classList.add('show-toast');
-                setTimeout(() => {
-                    toast.classList.remove('show-toast');
-                }, 2000);
+            copyToClipboard(promptText).then(success => {
+                if (success) {
+                    // نمایش اعلان
+                    toast.classList.add('show-toast');
+                    setTimeout(() => {
+                        toast.classList.remove('show-toast');
+                    }, 2000);
+                } else {
+                    alert('کپی کردن با مشکل مواجه شد. لطفا مجددا تلاش کنید.');
+                }
             });
         });
         
+        // پاک کردن محتوای خروجی
+        clearOutputBtn.addEventListener('click', () => {
+            promptOutput.textContent = 'پرامپت شما اینجا نمایش داده خواهد شد...';
+        });
+        
         // مقداردهی اولیه خروجی
-        promptOutput.textContent = generatePrompt();
+        promptOutput.textContent = 'پرامپت شما اینجا نمایش داده خواهد شد...';
         
         // پیاده سازی قابلیت نصب PWA
         let deferredPrompt;
