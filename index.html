@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پرامت نگار</title>
+    
+    <!-- Favicon - لینک آیکون صفحه -->
+    <link rel="icon" href="https://cmagnet.ir/uploads/49853a38c3234658b4d4f907640a222a.w_250,h_250,r_k.png" type="image/png">
+    <!-- برای تغییر آیکون، لینک بالا را با آدرس آیکون جدید جایگزین کنید -->
+    
+    <!-- فونت Vazirmatn -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+    
+    <!-- آیکون‌های Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- متا تگ‌های PWA -->
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="دستیار پرامت نویسی">
+    <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/logo/Favicon.png">
+    
+    <!-- Manifest برای PWA -->
+    <link rel="manifest" href="manifest.json">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Vazirmatn', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6366f1 0%, #a5b4fc 100%);
+            color: #333;
+            padding: 20px;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
+
+        h1 {
+            color: white;
+            font-size: 36px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 18px;
+        }
+
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+
+        .input-with-emoji {
+            position: relative;
+        }
+
+        .input-with-emoji input, 
+        .input-with-emoji textarea, 
+        .input-with-emoji select {
+            width: 100%;
+            padding: 14px 45px 14px 14px;
+            border: 2px solid #ddd;
+            border-radius: 40px;
+            background: #f8f9fa;
+            color: #333;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .input-with-emoji textarea {
+            min-height: 100px;
+            /* فقط کشیدگی عمودی فعال شود */
+            resize: vertical;
+        }
+
+        .input-emoji {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            z-index: 2;
+            filter: grayscale(100%);
+        }
+
+        textarea + .input-emoji {
+            top: 25px;
+            transform: none;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #6366f1;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .required::after {
+            content: " *";
+            color: #e74c3c;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-copy {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-copy:hover {
+            background: #219653;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-reset {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .output-container {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            margin-top: 20px;
+        }
+
+        .output-title {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #promptOutput {
+            white-space: pre-wrap;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 40px;
+            border: 2px solid #ddd;
+            min-height: 150px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Vazirmatn', monospace;
+            line-height: 1.8;
+            /* فقط کشیدگی عمودی فعال شود */
+            resize: vertical;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #27ae60;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .show-toast {
+            opacity: 1;
+        }
+
+        .ai-section {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px 20px;
+            border-radius: 20px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .ai-section h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        .ai-icons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 25px;
+        }
+
+        .ai-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            transition: transform 0.3s;
+            width: 80px;
+        }
+
+        .ai-icon:hover {
+            transform: translateY(-5px);
+        }
+
+        .ai-icon img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            margin-bottom: 8px;
+            border-radius: 70px;
+            background: white;
+            padding: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .ai-icon span {
+            font-size: 12px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .actions {
+                flex-direction: column;
+            }
+            
+            .ai-icons {
+                gap: 15px;
+            }
+            
+            .ai-icon {
+                width: 70px;
+            }
+            
+            h1 {
+                font-size: 28px;
+            }
+        }
+        
+        /* استایل برای دکمه نصب PWA */
+        .install-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 20px;
+            font-family: 'Vazirmatn', sans-serif;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>دستیار پرامت نویسی</h1>
+            <p class="subtitle">پرامپت‌های حرفه‌ای برای هوش مصنوعی ایجاد کنید</p>
+        </header>
+
+        <div class="form-container">
+            <form id="promptForm">
+                <div class="form-group">
+                    <label for="role" class="required">نقش</label>
+                    <div class="input-with-emoji">
+                        <input type="text" id="role" required placeholder="مثال: توسعه‌دهنده وب، نویسنده فنی">
+                        <span class="input-emoji">👨‍💼</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="goal" class="required">هدف</label>
+                    <div class="input-with-emoji">
+                        <input type="text" id="goal" required placeholder="مثال: ایجاد یک صفحه فرود جذاب">
+                        <span class="input-emoji">🎯</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="audience" class="required">مخاطب</label>
+                    <div class="input-with-emoji">
+                        <input type="text" id="audience" required placeholder="مثال: بزرگسالان، صاحبان مشاغل، آقایان">
+                        <span class="input-emoji">👥</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description" class="required">شرح</label>
+                    <div class="input-with-emoji">
+                        <textarea id="description" rows="3" required placeholder="پروژه خود را به صورت کامل شرح دهید"></textarea>
+                        <span class="input-emoji">📝</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="tone">لحن</label>
+                    <div class="input-with-emoji">
+                        <select id="tone">
+                            <option value="">لحن را انتخاب کنید</option>
+                            <option value="رسمی">رسمی</option>
+                            <option value="دوستانه">دوستانه</option>
+                            <option value="حرفه‌ای">حرفه‌ای</option>
+                            <option value="اطلاع‌رسانی">اطلاع‌رسانی</option>
+                            <option value="تشویقی">تشویقی</option>
+                        </select>
+                        <span class="input-emoji">🎙️</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="format">قالب</label>
+                    <div class="input-with-emoji">
+                        <input type="text" id="format" placeholder="مثال: مقاله وبلاگ، ایمیل، پست شبکه اجتماعی">
+                        <span class="input-emoji">📄</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="example">نمونه</label>
+                    <div class="input-with-emoji">
+                        <textarea id="example" rows="3" placeholder="در صورت تمایل نمونه‌ای از خروجی مورد نظر خود را وارد کنید"></textarea>
+                        <span class="input-emoji">📋</span>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="button" class="btn-copy" id="copyBtn">
+                        <span>کپی پرامپت</span>
+                        <span>📋</span>
+                    </button>
+                    <button type="reset" class="btn-reset">
+                        <span>پاک کردن</span>
+                        <span>🗑️</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="output-container">
+            <div class="output-title">
+                <h2>پرامپت تولید شده</h2>
+            </div>
+            <div id="promptOutput">پرامپت شما اینجا نمایش داده خواهد شد...</div>
+        </div>
+
+        <div class="ai-section">
+            <h2>هوش‌های مصنوعی پرکاربرد</h2>
+            <div class="ai-icons">
+                <a href="https://chatgpt.com" class="ai-icon" target="_blank">
+                    <img src="https://static.vecteezy.com/system/resources/previews/021/608/790/non_2x/chatgpt-logo-chat-gpt-icon-on-green-background-free-vector.jpg" alt="ChatGPT">
+                    <span>ChatGPT</span>
+                </a>
+                <a href="https://gemini.google.com" class="ai-icon" target="_blank">
+                    <img src="https://seeklogo.com/images/G/google-gemini-logo-A5D674ECCF-seeklogo.com.png" alt="Google Gemini">
+                    <span>Google Gemini</span>
+                </a>
+                <a href="https://www.microsoft.com/copilot" class="ai-icon" target="_blank">
+                    <img src="https://logos-world.net/wp-content/uploads/2023/10/Microsoft-Copilot-Logo.png" alt="Microsoft Copilot">
+                    <span>Microsoft Copilot</span>
+                </a>
+                <a href="https://www.midjourney.com" class="ai-icon" target="_blank">
+                    <img src="https://cdn.worldvectorlogo.com/logos/midjourney-1.svg" alt="Midjourney">
+                    <span>Midjourney</span>
+                </a>
+                <a href="https://www.anthropic.com/claude" class="ai-icon" target="_blank">
+                    <img src="https://1000logos.net/wp-content/uploads/2023/10/Claude-Logo.png" alt="Claude AI">
+                    <span>Claude AI</span>
+                </a>
+                <a href="https://www.deepseek.com" class="ai-icon" target="_blank">
+                    <img src="https://pbs.twimg.com/profile_images/1752675004273397760/7XaC4zvC_400x400.jpg" alt="DeepSeek">
+                    <span>DeepSeek</span>
+                </a>
+                <a href="https://grok.com" class="ai-icon" target="_blank">
+                    <img src="https://seeklogo.com/images/G/grok-logo-4F8F207F9D-seeklogo.com.png" alt="Grok">
+                    <span>Grok</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">پرامپت با موفقیت کپی شد!</div>
+    
+    <!-- دکمه نصب PWA -->
+    <button id="installBtn" class="install-btn">
+        <i class="fas fa-download"></i> نصب برنامه
+    </button>
+
+    <script>
+        // انتخاب عناصر مهم
+        const promptForm = document.getElementById('promptForm');
+        const copyBtn = document.getElementById('copyBtn');
+        const promptOutput = document.getElementById('promptOutput');
+        const toast = document.getElementById('toast');
+        const installBtn = document.getElementById('installBtn');
+        
+        // تولید پرامپت بر اساس فرم
+        function generatePrompt() {
+            const role = document.getElementById('role').value;
+            const goal = document.getElementById('goal').value;
+            const audience = document.getElementById('audience').value;
+            const description = document.getElementById('description').value;
+            const tone = document.getElementById('tone').value;
+            const format = document.getElementById('format').value;
+            const example = document.getElementById('example').value;
+            
+            let prompt = `نقش: ${role}\n`;
+            prompt += `هدف: ${goal}\n`;
+            prompt += `مخاطب: ${audience}\n`;
+            prompt += `شرح: ${description}\n`;
+            
+            if (tone) prompt += `لحن: ${tone}\n`;
+            if (format) prompt += `قالب: ${format}\n`;
+            if (example) prompt += `نمونه: ${example}\n`;
+            
+            return prompt;
+        }
+        
+        // به‌روزرسانی خروجی هنگام تغییر فرم
+        promptForm.addEventListener('input', () => {
+            promptOutput.textContent = generatePrompt();
+        });
+        
+        // کپی کردن پرامپت
+        copyBtn.addEventListener('click', () => {
+            const promptText = generatePrompt();
+            
+            // بررسی پر بودن فیلدهای اجباری
+            const role = document.getElementById('role').value;
+            const goal = document.getElementById('goal').value;
+            const audience = document.getElementById('audience').value;
+            const description = document.getElementById('description').value;
+            
+            if (!role || !goal || !audience || !description) {
+                alert('لطفا فیلدهای اجباری (نقش، هدف، مخاطب و شرح) را پر کنید.');
+                return;
+            }
+            
+            // کپی کردن به کلیپ‌بورد
+            navigator.clipboard.writeText(promptText).then(() => {
+                // نمایش اعلان
+                toast.classList.add('show-toast');
+                setTimeout(() => {
+                    toast.classList.remove('show-toast');
+                }, 2000);
+            });
+        });
+        
+        // مقداردهی اولیه خروجی
+        promptOutput.textContent = generatePrompt();
+        
+        // پیاده سازی قابلیت نصب PWA
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // جلوگیری از نمایش پیشفرض نصب
+            e.preventDefault();
+            // ذخیره کردن event برای استفاده بعدی
+            deferredPrompt = e;
+            // نمایش دکمه نصب
+            installBtn.style.display = 'block';
+        });
+        
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            
+            // نمایش prompt نصب
+            deferredPrompt.prompt();
+            
+            // منتظر ماندن برای انتخاب کاربر
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            if (outcome === 'accepted') {
+                console.log('کاربر نصب را پذیرفت');
+                installBtn.style.display = 'none';
+            }
+            
+            // پاک کردن deferredPrompt پس از استفاده
+            deferredPrompt = null;
+        });
+        
+        window.addEventListener('appinstalled', () => {
+            // پاک کردن deferredPrompt
+            deferredPrompt = null;
+            // مخفی کردن دکمه نصب
+            installBtn.style.display = 'none';
+            console.log('PWA نصب شد');
+        });
+    </script>
+</body>
+</html>
